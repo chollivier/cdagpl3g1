@@ -27,6 +27,8 @@ html(lang='en')
                 span.sr-only (current)
             li.nav-item.active
               a.nav-link(href='/carte') Carte
+            li.nav-item
+              a.nav-link(href='/carte2') Carte2
     // Page Content
     .container
       .row
@@ -47,3 +49,12 @@ html(lang='en')
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 19}).addTo(mymap);
+
+      let activites = !{JSON.stringify(activites)};
+      for(const activite of activites){
+        if(activite.geometry){
+          var marker = L.marker([activite.geometry.coordinates[1], activite.geometry.coordinates[0]]).addTo(mymap);
+           marker.bindPopup(activite.fields.title);         
+        }
+      }
+

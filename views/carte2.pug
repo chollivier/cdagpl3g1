@@ -1,0 +1,88 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    meta(name='description' content='')
+    meta(name='author' content='')
+    title Que faire à Paris ?
+    // Bootstrap core CSS
+    link(href='vendor/bootstrap/css/bootstrap.min.css' rel='stylesheet')
+    // Leaflet CSS
+    link(href='vendor/leaflet/leaflet.css' rel='stylesheet')
+    // My Custom CSS
+    link(href='assets/css/mystyle.css' rel='stylesheet')
+  body
+    // Navigation
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark.static-top
+      .container
+        a.navbar-brand(href='/') Que faire à Paris ?
+        button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarResponsive' aria-controls='navbarResponsive' aria-expanded='false' aria-label='Toggle navigation')
+          span.navbar-toggler-icon
+        #navbarResponsive.collapse.navbar-collapse
+          ul.navbar-nav.ml-auto
+            li.nav-item
+              a.nav-link(href='/')
+                | Accueil
+                span.sr-only (current)
+            li.nav-item
+              a.nav-link(href='/carte') Carte
+            li.nav-item.active
+              a.nav-link(href='/carte2') Carte2
+    // Page Content
+    .container
+      .row
+        .col-lg-12.text-center
+          h1.mt-5 Carte des activités
+          p.lead Démo de cours - Carte des activités
+          #mapid
+    // Bootstrap core JavaScript
+    script(src='vendor/jquery/jquery.slim.min.js')
+    script(src='vendor/bootstrap/js/bootstrap.bundle.min.js')
+    // Leaflet JavaScript
+    script(src='vendor/leaflet/leaflet.js')
+    script.
+      var concerts = L.layerGroup();
+      var autres = L.layerGroup();
+
+      let activites = !{JSON.stringify(activites)};
+      for(const activite of activites){
+        if(activite.geometry){
+          // Si je trouver la chaine "Concerts" dans la catégorie de l'activité
+          //console.log(activite.fields.category);
+          if(activite.fields.category.includes("Concerts")){
+          // Alors je l'ajouter au layerGroup concerts
+           L.marker([activite.geometry.coordinates[1], activite.geometry.coordinates[0]]).bindPopup(activite.fields.title).addTo(concerts);         
+          }else{
+          // Sinon je l'ajoute au layerGroup autres
+           L.marker([activite.geometry.coordinates[1], activite.geometry.coordinates[0]]).bindPopup(activite.fields.title).addTo(autres);
+          }
+        }
+      }
+
+
+
+      var mbAttr = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        mbUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+
+      var grayscale   = L.tileLayer(mbUrl, {id: 'mapbox/light-v9', tileSize: 512, zoomOffset: -1, attribution: mbAttr}),
+        streets  = L.tileLayer(mbUrl, {id: 'mapbox/streets-v11', tileSize: 512, zoomOffset: -1, attribution: mbAttr});
+
+      var map = L.map('mapid', {
+        center: [48.853, 2.35],
+        zoom: 13,
+        layers: [grayscale, concerts]
+      });
+
+      var baseLayers = {
+        "Grayscale": grayscale,
+        "Streets": streets
+      };
+
+      var overlays = {
+        "Concerts": concerts,
+        "Autres" : autres
+      };
+
+      L.control.layers(baseLayers, overlays).addTo(map);      

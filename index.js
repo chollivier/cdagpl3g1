@@ -40,8 +40,41 @@ app.get('/', function (req, res) {
 // Carte 
 app.get('/carte', function (req, res) {
     console.log("Page carte");
-    // Rendre le template index.pug
-    res.render('carte');
+    // Connexion et requete à Mongo
+    mongoClient.connect(dbUrl, { useUnifiedTopology: true }, function(err, client){
+        if(err){
+            throw err;
+        }
+        const collection = client.db(dbName).collection(collectionName);
+        // Je ne prends que les activités dont la date est supérieure à celle d'aujourd'hui
+        collection.find({"fields.date_start" : { $gte : new Date().toISOString()}}).toArray(function(err, data){
+            if(err){
+                throw err;
+            }
+            // Si je n'ai d'erreur lors de ma requête, je rends le template carte en lui passant mes data
+            res.render('carte', { activites : data });
+        })
+    })
+})
+
+// Carte 2
+app.get('/carte2', function (req, res) {
+    console.log("Page carte");
+    // Connexion et requete à Mongo
+    mongoClient.connect(dbUrl, { useUnifiedTopology: true }, function(err, client){
+        if(err){
+            throw err;
+        }
+        const collection = client.db(dbName).collection(collectionName);
+        // Je ne prends que les activités dont la date est supérieure à celle d'aujourd'hui
+        collection.find({"fields.date_start" : { $gte : new Date().toISOString()}}).toArray(function(err, data){
+            if(err){
+                throw err;
+            }
+            // Si je n'ai d'erreur lors de ma requête, je rends le template carte en lui passant mes data
+            res.render('carte2', { activites : data });
+        })
+    })
 })
 
 // Démarrage de notre app
